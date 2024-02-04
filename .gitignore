@@ -1,0 +1,12 @@
+FontCreator/Debug
+FontCreator/.vs
+FontCreator/FontCreator.ico
+FontCreator/FontCreator.rc
+FontCreator/FontCreator.sln
+FontCreator/*.vcxproj
+FontCreator/FontCreator.vcxproj.filters
+FontCreator/FontCreator.vcxproj.user
+FontCreator/framework.h
+FontCreator/Resource.h
+FontCreator/small.ico
+FontCreator/targetver.h
