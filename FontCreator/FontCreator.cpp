@@ -49,10 +49,12 @@ void MyPanel::OnMotion(wxMouseEvent& event)
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
     : wxWindow(parent, id, pos, size, style)
 {
-    wxGridSizer* windowSizer = new wxGridSizer(1, 1, 1, 1);
+    wxBoxSizer* windowSizer = new wxBoxSizer(wxHORIZONTAL);
+    windowSizer->AddStretchSpacer();
     windowSizer->Add(new MyPanel(this, ID_DRAWING_WINDOW, wxSize(200, 200), wxBORDER_SIMPLE),
-        wxSizerFlags(1).Center()
+        wxSizerFlags(0).Center()
     );
+    windowSizer->AddStretchSpacer();
     SetSizerAndFit(windowSizer);
 }
 
