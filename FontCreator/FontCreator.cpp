@@ -11,7 +11,9 @@
 enum
 {
     ID_TOP_WINDOW = 1,
-    ID_DRAWING_WINDOW = 2
+    ID_DRAWING_WINDOW = 2,
+    ID_CLEAR = 3,
+    ID_SUBMIT = 4
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -49,8 +51,10 @@ void MyPanel::OnMotion(wxMouseEvent& event)
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
     : wxWindow(parent, id, pos, size, style)
 {
-    wxBoxSizer* windowSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     windowSizer->AddStretchSpacer();
+    windowSizer->Add(new wxButton(this, ID_CLEAR, "Clear", wxPoint(0, 0), wxDefaultSize),
+        wxSizerFlags(0).Center());
     windowSizer->Add(new MyPanel(this, ID_DRAWING_WINDOW, wxSize(200, 200), wxBORDER_SIMPLE),
         wxSizerFlags(0).Center()
     );
