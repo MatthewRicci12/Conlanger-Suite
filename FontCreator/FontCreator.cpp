@@ -52,8 +52,13 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
     : wxWindow(parent, id, pos, size, style)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     windowSizer->AddStretchSpacer();
-    windowSizer->Add(new wxButton(this, ID_CLEAR, "Clear", wxPoint(0, 0), wxDefaultSize),
+    windowSizer->Add(buttonSizer,
+        wxSizerFlags(0).Center());
+    buttonSizer->Add(new wxButton(this, ID_CLEAR, "Clear"),
+        wxSizerFlags(0).Center());
+    buttonSizer->Add(new wxButton(this, ID_CLEAR, "Submit"),
         wxSizerFlags(0).Center());
     windowSizer->Add(new MyPanel(this, ID_DRAWING_WINDOW, wxSize(200, 200), wxBORDER_SIMPLE),
         wxSizerFlags(0).Center()
