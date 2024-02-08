@@ -8,6 +8,7 @@
 
 
 #define POPUP(message) wxMessageDialog z(this, message); z.ShowModal()
+
 enum
 {
     ID_TOP_WINDOW = 1,
@@ -25,9 +26,9 @@ bool MyApp::OnInit()
     return true;
 }
 
-BEGIN_EVENT_TABLE(MyFrame, wxFrame)
-EVT_BUTTON(ID_CLEAR, MyFrame::Clear)
-EVT_BUTTON(ID_SUBMIT, MyFrame::Submit)
+BEGIN_EVENT_TABLE(MyWindow, wxWindow)
+EVT_BUTTON(ID_CLEAR, MyWindow::Clear)
+EVT_BUTTON(ID_SUBMIT, MyWindow::Submit)
 END_EVENT_TABLE()
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -36,11 +37,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
 }
 
-void MyFrame::Clear(wxCommandEvent& event) {
-    MyPanel::ClearDrawing();
+void MyWindow::Clear(wxCommandEvent& event) {
+    canvas.ClearDrawing();
 }
 
-void MyFrame::Submit(wxCommandEvent& event) {
+void MyWindow::Submit(wxCommandEvent& event) {
     POPUP("Submit");
 }
 
@@ -77,7 +78,6 @@ void MyPanel::OnMouseLeftUp(wxMouseEvent&)
 
 void MyPanel::OnPaint(wxPaintEvent&)
 {
-    static size_t evtCount = 0;
 
     wxAutoBufferedPaintDC dc(this);
 
@@ -107,11 +107,12 @@ void MyPanel::ClearDrawing()
 
     Refresh();
     Update();
+
 }
 
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style)
+    : wxWindow(parent, id, pos, size, style) , canvas(this, ID_DRAWING_WINDOW, wxSize(200, 200), wxBORDER_SIMPLE)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -125,9 +126,7 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
         wxSizerFlags(0).Center());
     buttonSizer->Add(new wxButton(this, ID_SUBMIT, "Submit"),
         wxSizerFlags(0).Center());
-    windowSizer->Add(new MyPanel(this, ID_DRAWING_WINDOW, wxSize(200, 200), wxBORDER_SIMPLE),
-        wxSizerFlags(0).Center()
-    );
+    windowSizer->Add(&canvas, wxSizerFlags(0).Center());
 
     windowSizer->AddStretchSpacer();
     SetSizerAndFit(windowSizer);
