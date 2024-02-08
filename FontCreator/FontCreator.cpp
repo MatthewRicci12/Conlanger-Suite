@@ -37,7 +37,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 }
 
 void MyFrame::Clear(wxCommandEvent& event) {
-    POPUP("Clear");
+    MyPanel::ClearDrawing();
 }
 
 void MyFrame::Submit(wxCommandEvent& event) {
@@ -46,20 +46,69 @@ void MyFrame::Submit(wxCommandEvent& event) {
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
 EVT_MOTION(MyPanel::OnMotion)
+EVT_LEFT_DOWN(MyPanel::OnMouseLeftDown)
+EVT_LEFT_UP(MyPanel::OnMouseLeftUp)
+EVT_PAINT(MyPanel::OnPaint)
 END_EVENT_TABLE()
+
+
 
 void MyPanel::OnMotion(wxMouseEvent& event)
 {
-    if (event.Dragging())
+    if (HasCapture() && event.Dragging() && event.LeftIsDown())
+        AddPoint(event.GetPosition());
+}
+
+void MyPanel::OnMouseLeftDown(wxMouseEvent& event)
+{
+    CaptureMouse();
+
+    lines.push_back(Line());
+    AddPoint(event.GetPosition());
+}
+
+void MyPanel::OnMouseLeftUp(wxMouseEvent&)
+{
+    if (HasCapture())
     {
-        wxClientDC dc(this);
-        wxBufferedDC bdc(&dc);
-        wxPen pen(*wxRED, 1); // red pen of width 1
-        bdc.SetPen(pen);
-        bdc.DrawPoint(event.GetPosition());
-        bdc.SetPen(wxNullPen);
+        ReleaseMouse();
     }
 }
+
+void MyPanel::OnPaint(wxPaintEvent&)
+{
+    static size_t evtCount = 0;
+
+    wxAutoBufferedPaintDC dc(this);
+
+    dc.SetBackground(*wxBLACK_BRUSH);
+    dc.Clear();
+
+    // draw lines the user created
+    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(3));
+    wxDCPenChanger lineUserPenChanger(dc, linePen);
+
+    for (const auto& line : lines)
+    {
+        dc.DrawLines(line.size(), &line[0]);
+    }
+}
+void MyPanel::AddPoint(const wxPoint& point)
+{
+    lines.back().push_back(point);
+
+    Refresh();
+    Update();
+}
+
+void MyPanel::ClearDrawing()
+{
+    lines.clear();
+
+    Refresh();
+    Update();
+}
+
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
     : wxWindow(parent, id, pos, size, style)
@@ -87,5 +136,5 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
 MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style)
     : wxPanel(parent, id, wxDefaultPosition, size, style)
 {
-    SetBackgroundColour(*wxGREEN);
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
