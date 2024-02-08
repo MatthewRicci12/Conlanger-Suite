@@ -7,8 +7,10 @@ class MyFrame : public wxFrame
 {
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    void Clear(wxCommandEvent& event);
+    void Submit(wxCommandEvent& event);
 private:
-
+    wxDECLARE_EVENT_TABLE();
 };
 
 class MyWindow : public wxWindow

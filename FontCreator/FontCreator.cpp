@@ -25,10 +25,23 @@ bool MyApp::OnInit()
     return true;
 }
 
+BEGIN_EVENT_TABLE(MyFrame, wxFrame)
+EVT_BUTTON(ID_CLEAR, MyFrame::Clear)
+EVT_BUTTON(ID_SUBMIT, MyFrame::Submit)
+END_EVENT_TABLE()
+
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
     MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
+}
+
+void MyFrame::Clear(wxCommandEvent& event) {
+    POPUP("Clear");
+}
+
+void MyFrame::Submit(wxCommandEvent& event) {
+    POPUP("Submit");
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -53,16 +66,20 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+
     windowSizer->AddStretchSpacer();
+
     windowSizer->Add(buttonSizer,
         wxSizerFlags(0).Center());
+
     buttonSizer->Add(new wxButton(this, ID_CLEAR, "Clear"),
         wxSizerFlags(0).Center());
-    buttonSizer->Add(new wxButton(this, ID_CLEAR, "Submit"),
+    buttonSizer->Add(new wxButton(this, ID_SUBMIT, "Submit"),
         wxSizerFlags(0).Center());
     windowSizer->Add(new MyPanel(this, ID_DRAWING_WINDOW, wxSize(200, 200), wxBORDER_SIMPLE),
         wxSizerFlags(0).Center()
     );
+
     windowSizer->AddStretchSpacer();
     SetSizerAndFit(windowSizer);
 }
