@@ -10,3 +10,5 @@ FontCreator/framework.h
 FontCreator/Resource.h
 FontCreator/small.ico
 FontCreator/targetver.h
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json

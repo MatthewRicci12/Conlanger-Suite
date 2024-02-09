@@ -14,7 +14,9 @@ enum
     ID_TOP_WINDOW = 1,
     ID_DRAWING_WINDOW = 2,
     ID_CLEAR = 3,
-    ID_SUBMIT = 4
+    ID_SUBMIT = 4,
+    ID_DIALOG = 5,
+    ID_DIALOG_TEXT = 6
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -42,7 +44,9 @@ void MyWindow::Clear(wxCommandEvent& event) {
 }
 
 void MyWindow::Submit(wxCommandEvent& event) {
-    POPUP("Submit");
+    MyDialog* d = new MyDialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
+    //set Icon
+    d->ShowModal();
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -74,7 +78,7 @@ void MyPanel::OnMouseLeftUp(wxMouseEvent&)
     {
         ReleaseMouse();
     }
-}
+} 
 
 void MyPanel::OnPaint(wxPaintEvent&)
 {
@@ -136,4 +140,25 @@ MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style
     : wxPanel(parent, id, wxDefaultPosition, size, style)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
+}
+
+
+BEGIN_EVENT_TABLE(MyDialog, wxDialog)
+EVT_KEY_UP(MyDialog::KeyPressed)
+END_EVENT_TABLE()
+
+MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
+    const wxSize& size, long style) : wxDialog(parent, id, title, pos, size,style)
+{
+    SetFocus();
+    wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
+}
+
+
+
+void MyDialog::KeyPressed(wxKeyEvent& event)
+{
+    int keyCode = event.GetKeyCode();
+    wxLogMessage("You pressed: %c", keyCode);
+    EndModal(0);
 }
