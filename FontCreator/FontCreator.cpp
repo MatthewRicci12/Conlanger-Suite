@@ -3,6 +3,7 @@
 #include <wx/wx.h>
 #endif
 #include "FontCreator.h"
+#include "FontFileSerializer.h"
 #include <wx/dcbuffer.h>
 #include <string>
 
@@ -116,7 +117,7 @@ void MyPanel::ClearDrawing()
 
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style) , canvas(this, ID_DRAWING_WINDOW, wxSize(200, 200), wxBORDER_SIMPLE)
+    : wxWindow(parent, id, pos, size, style) , canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
