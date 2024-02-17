@@ -48,6 +48,18 @@ void MyWindow::Submit(wxCommandEvent& event) {
     MyDialog* d = new MyDialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
     //set Icon
     d->ShowModal();
+
+    wxWindowDC wdc(d);
+    wxMemoryDC dc(&wdc);
+    wxRect rect(wxSize(CANVAS_D, CANVAS_D));
+    wxSize bitmapSize = dc.GetAsBitmap(&rect).GetSize();
+    int height = bitmapSize.GetHeight();
+    int width = bitmapSize.GetWidth();
+
+    char s[128];
+    sprintf(s, "Height: %d, width: %d\n", height, width);
+    wxLogMessage(s);
+
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)

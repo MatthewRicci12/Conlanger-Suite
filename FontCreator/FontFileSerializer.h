@@ -2,6 +2,7 @@
 #include <bitset>
 #include <unordered_map>
 
+// D = dimension, A = area
 #define CANVAS_D 200
 #define CANVAS_A CANVAS_D*CANVAS_D
 
