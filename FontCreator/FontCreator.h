@@ -12,7 +12,7 @@ public:
 private:
     typedef std::vector<wxPoint> Line;
     typedef std::vector<Line> Lines;
-    Lines lines;
+    wxBitmap bm;
 
     wxDECLARE_EVENT_TABLE();
 };

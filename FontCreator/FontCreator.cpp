@@ -49,17 +49,6 @@ void MyWindow::Submit(wxCommandEvent& event) {
     //set Icon
     d->ShowModal();
 
-    wxWindowDC wdc(d);
-    wxMemoryDC dc(&wdc);
-    wxRect rect(wxSize(CANVAS_D, CANVAS_D));
-    wxSize bitmapSize = dc.GetAsBitmap(&rect).GetSize();
-    int height = bitmapSize.GetHeight();
-    int width = bitmapSize.GetWidth();
-
-    char s[128];
-    sprintf(s, "Height: %d, width: %d\n", height, width);
-    wxLogMessage(s);
-
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -81,7 +70,7 @@ void MyPanel::OnMouseLeftDown(wxMouseEvent& event)
 {
     CaptureMouse();
 
-    lines.push_back(Line());
+
     AddPoint(event.GetPosition());
 }
 
@@ -95,24 +84,22 @@ void MyPanel::OnMouseLeftUp(wxMouseEvent&)
 
 void MyPanel::OnPaint(wxPaintEvent&)
 {
-
     wxAutoBufferedPaintDC dc(this);
-
-    dc.SetBackground(*wxBLACK_BRUSH);
-    dc.Clear();
-
-    // draw lines the user created
-    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(3));
-    wxDCPenChanger lineUserPenChanger(dc, linePen);
-
-    for (const auto& line : lines)
-    {
-        dc.DrawLines(line.size(), &line[0]);
-    }
+    dc.DrawBitmap(bm, wxPoint(0, 0));
 }
+
 void MyPanel::AddPoint(const wxPoint& point)
 {
-    lines.back().push_back(point);
+    wxMemoryDC dc(bm);
+
+    dc.SetBackground(*wxBLACK_BRUSH);
+
+    // draw lines the user created
+    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(5));
+    wxDCPenChanger lineUserPenChanger(dc, linePen);
+
+    dc.DrawPoint(point);
+    dc.SelectObject(wxNullBitmap);
 
     Refresh();
     Update();
@@ -120,7 +107,10 @@ void MyPanel::AddPoint(const wxPoint& point)
 
 void MyPanel::ClearDrawing()
 {
-    lines.clear();
+    wxMemoryDC dc(bm);
+    dc.SetBackground(*wxBLACK_BRUSH);
+    dc.Clear();
+    dc.SelectObject(wxNullBitmap);
 
     Refresh();
     Update();
@@ -150,9 +140,10 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
 }
 
 MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style)
-    : wxPanel(parent, id, wxDefaultPosition, size, style)
+    : wxPanel(parent, id, wxDefaultPosition, size, style), bm(CANVAS_D, CANVAS_D)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
+    SetBackgroundColour(*wxBLACK);
 }
 
 
