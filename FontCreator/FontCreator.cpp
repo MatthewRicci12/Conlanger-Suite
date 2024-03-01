@@ -1,3 +1,4 @@
+
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
@@ -49,6 +50,16 @@ void MyWindow::Submit(wxCommandEvent& event) {
     //set Icon
     d->ShowModal();
 
+    wxWindowDC wdc(d);
+    wxMemoryDC dc(&wdc);
+    wxSize bitmapSize = dc.GetAsBitmap().GetSize();
+    int height = bitmapSize.GetHeight();
+    int width = bitmapSize.GetWidth();
+
+    char s[128];
+    sprintf(s, "Height: %d, width: %d\n", height, width);
+    wxLogMessage(s);
+
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -70,7 +81,7 @@ void MyPanel::OnMouseLeftDown(wxMouseEvent& event)
 {
     CaptureMouse();
 
-
+    lines.push_back(Line());
     AddPoint(event.GetPosition());
 }
 
@@ -80,26 +91,29 @@ void MyPanel::OnMouseLeftUp(wxMouseEvent&)
     {
         ReleaseMouse();
     }
-} 
+}
 
 void MyPanel::OnPaint(wxPaintEvent&)
 {
-    wxAutoBufferedPaintDC dc(this);
-    dc.DrawBitmap(bm, wxPoint(0, 0));
+    wxMemoryDC dc(bm);
+
+    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(5));
+    wxDCPenChanger lineUserPenChanger(dc, linePen);
+
+    for (const auto& line : lines)
+    {
+        dc.DrawLines(line.size(), &line[0]);
+    }
+    dc.SelectObject(wxNullBitmap);
+
+    
+    wxAutoBufferedPaintDC pdc(this);
+    pdc.DrawBitmap(bm, wxPoint(0, 0));
 }
 
 void MyPanel::AddPoint(const wxPoint& point)
 {
-    wxMemoryDC dc(bm);
-
-    dc.SetBackground(*wxBLACK_BRUSH);
-
-    // draw lines the user created
-    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(5));
-    wxDCPenChanger lineUserPenChanger(dc, linePen);
-
-    dc.DrawPoint(point);
-    dc.SelectObject(wxNullBitmap);
+    lines.back().push_back(point); 
 
     Refresh();
     Update();
@@ -107,10 +121,7 @@ void MyPanel::AddPoint(const wxPoint& point)
 
 void MyPanel::ClearDrawing()
 {
-    wxMemoryDC dc(bm);
-    dc.SetBackground(*wxBLACK_BRUSH);
-    dc.Clear();
-    dc.SelectObject(wxNullBitmap);
+    lines.clear();
 
     Refresh();
     Update();
@@ -119,7 +130,7 @@ void MyPanel::ClearDrawing()
 
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style) , canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
+    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -143,22 +154,29 @@ MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style
     : wxPanel(parent, id, wxDefaultPosition, size, style), bm(CANVAS_D, CANVAS_D)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
-    SetBackgroundColour(*wxBLACK);
 }
 
 
 BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 EVT_KEY_UP(MyDialog::KeyPressed)
+EVT_PAINT(MyDialog::OnPaint)
 END_EVENT_TABLE()
 
 MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
-    const wxSize& size, long style) : wxDialog(parent, id, title, pos, size,style)
+    const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
-    SetFocus();
-    wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
 }
 
 
+void MyDialog::OnPaint(wxPaintEvent& event)
+{
+    wxPaintDC dc(this);
+    dc.SetPen(*wxRED_PEN);
+    //dc.SetBrush(*wxRED_BRUSH);
+    dc.SetBackground(*wxBLUE);
+    dc.Clear();
+
+}
 
 void MyDialog::KeyPressed(wxKeyEvent& event)
 {

@@ -12,6 +12,7 @@ public:
 private:
     typedef std::vector<wxPoint> Line;
     typedef std::vector<Line> Lines;
+    Lines lines;
     wxBitmap bm;
 
     wxDECLARE_EVENT_TABLE();
@@ -48,6 +49,7 @@ class MyDialog : public wxDialog
 public:
     MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
     void KeyPressed(wxKeyEvent& event);
+    void OnPaint(wxPaintEvent& event);
 private:
     wxDECLARE_EVENT_TABLE();
 };
