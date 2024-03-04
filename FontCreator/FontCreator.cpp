@@ -8,8 +8,31 @@
 #include <wx/dcbuffer.h>
 #include <string>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
 
 #define POPUP(message) wxMessageDialog z(this, message); z.ShowModal()
+#define LOG_MSG(message) using namespace logging::trivial; src::severity_logger<severity_level> lg; char s[128]; sprintf(s, message); BOOST_LOG_SEV(lg, info) << s;
+
+namespace logging = boost::log;
+namespace src = boost::log::sources;
+namespace sinks = boost::log::sinks;
+namespace keywords = boost::log::keywords;
+
+void init()
+{
+    logging::add_file_log("sample.log");
+
+    logging::core::get()->set_filter
+    (
+        logging::trivial::severity >= logging::trivial::info
+    );
+}
+
+
+
+
 
 enum
 {
@@ -25,6 +48,9 @@ wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit()
 {
+    init();
+    logging::add_common_attributes();
+
     MyFrame* frame = new MyFrame("", wxPoint(50, 50), wxSize(0.85 * wxGetDisplaySize()));
     frame->Show(true);
     return true;
@@ -56,9 +82,7 @@ void MyWindow::Submit(wxCommandEvent& event) {
     int height = bitmapSize.GetHeight();
     int width = bitmapSize.GetWidth();
 
-    char s[128];
-    sprintf(s, "Height: %d, width: %d\n", height, width);
-    wxLogMessage(s);
+    LOG_MSG("Height: %d, width: %d\n", height, width);
 
 }
 
