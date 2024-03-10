@@ -1,3 +1,6 @@
+
+class MyWindow;
+
 class MyPanel : public wxPanel
 {
 public:
@@ -8,21 +11,15 @@ public:
     void OnPaint(wxPaintEvent&);
     void AddPoint(const wxPoint& point);
     void ClearDrawing();
-
+    friend MyWindow;
 private:
     typedef std::vector<wxPoint> Line;
     typedef std::vector<Line> Lines;
     Lines lines;
     wxBitmap bm;
+    wxPalette palette;
 
     wxDECLARE_EVENT_TABLE();
-};
-
-
-class MyApp : public wxApp
-{
-public:
-    virtual bool OnInit();
 };
 
 class MyWindow : public wxWindow
@@ -36,6 +33,12 @@ private:
     wxDECLARE_EVENT_TABLE();
 };
 
+
+class MyApp : public wxApp
+{
+public:
+    virtual bool OnInit();
+};
 
 class MyFrame : public wxFrame
 {

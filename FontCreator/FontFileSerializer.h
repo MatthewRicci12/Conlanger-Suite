@@ -8,7 +8,10 @@
 class FontFileSerializer
 {
 public:
-
+	FontFileSerializer* getInstance();
+	FontFileSerializer(FontFileSerializer& other) = delete;
+	void operator=(const FontFileSerializer&) = delete;
 private:
-
+	static FontFileSerializer* instance;
+	FontFileSerializer() {}
 };

@@ -1,4 +1,3 @@
-
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
@@ -8,31 +7,8 @@
 #include <wx/dcbuffer.h>
 #include <string>
 
-#include <boost/log/trivial.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
 
 #define POPUP(message) wxMessageDialog z(this, message); z.ShowModal()
-#define LOG_MSG(message) using namespace logging::trivial; src::severity_logger<severity_level> lg; char s[128]; sprintf(s, message); BOOST_LOG_SEV(lg, info) << s;
-
-namespace logging = boost::log;
-namespace src = boost::log::sources;
-namespace sinks = boost::log::sinks;
-namespace keywords = boost::log::keywords;
-
-void init()
-{
-    logging::add_file_log("sample.log");
-
-    logging::core::get()->set_filter
-    (
-        logging::trivial::severity >= logging::trivial::info
-    );
-}
-
-
-
-
 
 enum
 {
@@ -48,9 +24,6 @@ wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit()
 {
-    init();
-    logging::add_common_attributes();
-
     MyFrame* frame = new MyFrame("", wxPoint(50, 50), wxSize(0.85 * wxGetDisplaySize()));
     frame->Show(true);
     return true;
@@ -75,15 +48,6 @@ void MyWindow::Submit(wxCommandEvent& event) {
     MyDialog* d = new MyDialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
     //set Icon
     d->ShowModal();
-
-    wxWindowDC wdc(d);
-    wxMemoryDC dc(&wdc);
-    wxSize bitmapSize = dc.GetAsBitmap().GetSize();
-    int height = bitmapSize.GetHeight();
-    int width = bitmapSize.GetWidth();
-
-    LOG_MSG("Height: %d, width: %d\n", height, width);
-
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -115,29 +79,28 @@ void MyPanel::OnMouseLeftUp(wxMouseEvent&)
     {
         ReleaseMouse();
     }
-}
+} 
 
 void MyPanel::OnPaint(wxPaintEvent&)
 {
-    wxMemoryDC dc(bm);
 
-    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(5));
+    wxAutoBufferedPaintDC dc(this);
+
+    dc.SetBackground(*wxBLACK_BRUSH);
+    dc.Clear();
+
+    // draw lines the user created
+    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(3));
     wxDCPenChanger lineUserPenChanger(dc, linePen);
 
     for (const auto& line : lines)
     {
         dc.DrawLines(line.size(), &line[0]);
     }
-    dc.SelectObject(wxNullBitmap);
-
-    
-    wxAutoBufferedPaintDC pdc(this);
-    pdc.DrawBitmap(bm, wxPoint(0, 0));
 }
-
 void MyPanel::AddPoint(const wxPoint& point)
 {
-    lines.back().push_back(point); 
+    lines.back().push_back(point);
 
     Refresh();
     Update();
@@ -154,7 +117,7 @@ void MyPanel::ClearDrawing()
 
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
+    : wxWindow(parent, id, pos, size, style) , canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -175,7 +138,7 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
 }
 
 MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style)
-    : wxPanel(parent, id, wxDefaultPosition, size, style), bm(CANVAS_D, CANVAS_D)
+    : wxPanel(parent, id, wxDefaultPosition, size, style)
 {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
@@ -183,24 +146,16 @@ MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style
 
 BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 EVT_KEY_UP(MyDialog::KeyPressed)
-EVT_PAINT(MyDialog::OnPaint)
 END_EVENT_TABLE()
 
 MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
-    const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
+    const wxSize& size, long style) : wxDialog(parent, id, title, pos, size,style)
 {
+    SetFocus();
+    wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
 }
 
 
-void MyDialog::OnPaint(wxPaintEvent& event)
-{
-    wxPaintDC dc(this);
-    dc.SetPen(*wxRED_PEN);
-    //dc.SetBrush(*wxRED_BRUSH);
-    dc.SetBackground(*wxBLUE);
-    dc.Clear();
-
-}
 
 void MyDialog::KeyPressed(wxKeyEvent& event)
 {
