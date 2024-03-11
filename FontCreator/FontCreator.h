@@ -1,5 +1,16 @@
+#include <wx/wxprec.h>
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
+
+#ifndef FONTCREATOR_H
+#define FONTCREATOR_H
+
 
 class MyWindow;
+
+typedef std::vector<wxPoint> Line;
+typedef std::vector<Line> Lines;
 
 class MyPanel : public wxPanel
 {
@@ -13,11 +24,7 @@ public:
     void ClearDrawing();
     friend MyWindow;
 private:
-    typedef std::vector<wxPoint> Line;
-    typedef std::vector<Line> Lines;
     Lines lines;
-    wxBitmap bm;
-    wxPalette palette;
 
     wxDECLARE_EVENT_TABLE();
 };
@@ -56,3 +63,5 @@ public:
 private:
     wxDECLARE_EVENT_TABLE();
 };
+
+#endif

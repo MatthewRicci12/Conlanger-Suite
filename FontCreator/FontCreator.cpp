@@ -13,12 +13,18 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 
 #define POPUP(message) wxMessageDialog z(this, message); z.ShowModal()
-#define LOG_MSG(message, ...) using namespace logging::trivial; src::severity_logger<severity_level> lg; char s[128]; sprintf(s, message, __VA_ARGS__); BOOST_LOG_SEV(lg, info) << s;
+
+#ifndef LOG_MSG
+#define LOG_MSG(message, ...) sprintf(s, message, __VA_ARGS__); BOOST_LOG_SEV(lg, info) << s;
+#endif
 
 namespace logging = boost::log;
 namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
+using namespace logging::trivial; 
+//src::severity_logger<severity_level> lg;
+//char s[128];
 
 void init()
 {
@@ -29,10 +35,6 @@ void init()
         logging::trivial::severity >= logging::trivial::info
     );
 }
-
-
-
-
 
 enum
 {
@@ -67,13 +69,20 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
 }
 
-void MyWindow::Clear(wxCommandEvent& event) {
+void MyWindow::Clear(wxCommandEvent& event) 
+{
     canvas.ClearDrawing();
 }
 
-void MyWindow::Submit(wxCommandEvent& event) {
+void MyWindow::Submit(wxCommandEvent& event) 
+{
+    FontFileSerializer* ffs = FontFileSerializer::getInstance();
+
+    Lines downsizedLines = ffs->downSizeLines(canvas.lines);
+
+
+
     MyDialog* d = new MyDialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
-    //set Icon
     d->ShowModal();
 }
 
@@ -127,6 +136,10 @@ void MyPanel::OnPaint(wxPaintEvent&)
 }
 void MyPanel::AddPoint(const wxPoint& point)
 {
+    if (point.x < 0 || point.x > 200 || point.y < 0 || point.y > 200) {
+        return;
+    }
+
     lines.back().push_back(point);
 
     Refresh();
