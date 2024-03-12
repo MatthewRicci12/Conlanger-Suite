@@ -78,12 +78,12 @@ void MyWindow::Submit(wxCommandEvent& event)
 {
     FontFileSerializer* ffs = FontFileSerializer::getInstance();
 
-    Lines downsizedLines = ffs->downSizeLines(canvas.lines);
+    dialog.lines = ffs->downSizeLines(canvas.lines);
 
-
-
-    MyDialog* d = new MyDialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
-    d->ShowModal();
+    dialog.Refresh();
+    dialog.Update();
+ 
+    dialog.ShowModal();
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -157,7 +157,8 @@ void MyPanel::ClearDrawing()
 
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
+    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE),
+      dialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(65, 90))
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -192,6 +193,7 @@ END_EVENT_TABLE()
 MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
     const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
     //SetFocus();
     //wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
 }
@@ -199,12 +201,16 @@ MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const
 
 void MyDialog::OnPaint(wxPaintEvent& event)
 {
-    wxPaintDC dc(this);
-    dc.SetPen(*wxWHITE_PEN);
-    //dc.SetBrush(*wxWHITE_BRUSH);
+    wxAutoBufferedPaintDC dc(this);
     dc.SetBackground(*wxBLACK);
     dc.Clear();
 
+    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(3));
+    wxDCPenChanger lineUserPenChanger(dc, linePen);
+
+    for (const auto& line : lines) {
+        dc.DrawLines(line.size(), &line[0]);
+    }
 };
 
 void MyDialog::KeyPressed(wxKeyEvent& event)

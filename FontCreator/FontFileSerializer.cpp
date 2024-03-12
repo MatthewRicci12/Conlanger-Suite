@@ -40,7 +40,7 @@ Lines FontFileSerializer::downSizeLines(Lines& lines) {
 	wxPoint downscaledPoint;
 	for (Line line : lines) {
 		Line curLine;
-		for (wxPoint point : line) {
+		for (const wxPoint& point : line) {
 			downscaledPoint = downScalePoint(point);
 			curLine.push_back(downscaledPoint);
 			LOG_MSG("(%d, %d)\n", downscaledPoint.x, downscaledPoint.y);

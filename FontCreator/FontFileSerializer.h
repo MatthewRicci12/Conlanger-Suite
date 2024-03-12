@@ -6,7 +6,7 @@
 // D = dimension, A = area
 #define CANVAS_D 200
 #define CANVAS_A 40_000
-#define LETTER_D 50
+#define LETTER_D 100
 #define LETTER_A 2500
 
 class FontFileSerializer

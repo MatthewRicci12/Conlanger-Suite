@@ -8,6 +8,7 @@
 
 
 class MyWindow;
+class MyDialog;
 
 typedef std::vector<wxPoint> Line;
 typedef std::vector<Line> Lines;
@@ -29,18 +30,6 @@ private:
     wxDECLARE_EVENT_TABLE();
 };
 
-class MyWindow : public wxWindow
-{
-public:
-    MyWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxSize& size = wxDefaultSize, const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
-    void Clear(wxCommandEvent& event);
-    void Submit(wxCommandEvent& event);
-private:
-    MyPanel canvas;
-    wxDECLARE_EVENT_TABLE();
-};
-
-
 class MyApp : public wxApp
 {
 public:
@@ -60,7 +49,21 @@ public:
     MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
     void KeyPressed(wxKeyEvent& event);
     void OnPaint(wxPaintEvent& event);
+    friend MyWindow;
+    Lines lines;
 private:
+    wxDECLARE_EVENT_TABLE();
+};
+
+class MyWindow : public wxWindow
+{
+public:
+    MyWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxSize& size = wxDefaultSize, const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
+    void Clear(wxCommandEvent& event);
+    void Submit(wxCommandEvent& event);
+private:
+    MyPanel canvas;
+    MyDialog dialog;
     wxDECLARE_EVENT_TABLE();
 };
 
