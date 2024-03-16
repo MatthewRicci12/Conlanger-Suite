@@ -13,13 +13,19 @@ class FontFileSerializer
 {
 public:
 	static FontFileSerializer* getInstance();
+	static void cleanUpInstance();
 	Lines downSizeLines(Lines&);
-	wxPoint downScalePoint(wxPoint point);
-	int normalizeQuotient(double quotient);
-	FontFileSerializer(FontFileSerializer& other) = delete;
+	wxPoint downScalePoint(wxPoint);
+	int normalizeQuotient(double);
+	FontFileSerializer(FontFileSerializer&) = delete;
 	void operator=(const FontFileSerializer&) = delete;
+	void submitGlyphToCurrentFile(char, Lines&);
+	void saveFontFile();
+
 private:
 	static FontFileSerializer* instance;
+	static std::ofstream curFileStream;
+	static short fontFileNum;
 	FontFileSerializer() {}
 };
 

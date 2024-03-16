@@ -1,6 +1,7 @@
 #include "FontFileSerializer.h"
 #include "FontCreator.h"
 #include <cmath>
+#include <fstream>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
@@ -16,8 +17,8 @@ namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
 using namespace logging::trivial;
-char s[128];
-src::severity_logger<severity_level> lg;
+//char s[128];
+//src::severity_logger<severity_level> lg;
 
 
 FontFileSerializer* FontFileSerializer::getInstance() {
@@ -28,13 +29,13 @@ FontFileSerializer* FontFileSerializer::getInstance() {
 }
 
 Lines FontFileSerializer::downSizeLines(Lines& lines) {
-	LOG_MSG("=====================BEFORE=====================\n");
-	for (Line line : lines) {
-		for (wxPoint point : line) {
-			LOG_MSG("(%d, %d)\n", point.x, point.y);
-		}
-	}
-	LOG_MSG("=====================AFTER=====================\n");
+	//LOG_MSG("=====================BEFORE=====================\n");
+	//for (Line line : lines) {
+	//	for (wxPoint point : line) {
+	//		LOG_MSG("(%d, %d)\n", point.x, point.y);
+	//	}
+	//}
+	//LOG_MSG("=====================AFTER=====================\n");
 
 	Lines retVal;
 	wxPoint downscaledPoint;
@@ -43,7 +44,7 @@ Lines FontFileSerializer::downSizeLines(Lines& lines) {
 		for (const wxPoint& point : line) {
 			downscaledPoint = downScalePoint(point);
 			curLine.push_back(downscaledPoint);
-			LOG_MSG("(%d, %d)\n", downscaledPoint.x, downscaledPoint.y);
+			//LOG_MSG("(%d, %d)\n", downscaledPoint.x, downscaledPoint.y);
 		}
 		retVal.push_back(curLine);
 	}
@@ -61,4 +62,27 @@ int FontFileSerializer::normalizeQuotient(double quotient) {
 	return complement >= 0.5 ? floor(quotient) : ceil(quotient);
 }
 
+void FontFileSerializer::cleanUpInstance() {
+	if (instance == nullptr) return;
+	delete instance;
+}
+
+void FontFileSerializer::submitGlyphToCurrentFile(char ch, Lines& lines) {
+	curFileStream << ch;
+	curFileStream << lines.size();
+	for (Line line : lines) {
+		curFileStream << line.size(); // Num POINTS, in the line.
+		for (wxPoint point : line) {
+			curFileStream << point.x;
+			curFileStream << point.y;
+		}
+	}
+}
+
+void FontFileSerializer::saveFontFile() {
+	curFileStream.close();
+}
+	
 FontFileSerializer* FontFileSerializer::instance = nullptr;
+std::ofstream FontFileSerializer::curFileStream("FontFiles/font1.txt", std::ios_base::binary);
+short FontFileSerializer::fontFileNum = 2;

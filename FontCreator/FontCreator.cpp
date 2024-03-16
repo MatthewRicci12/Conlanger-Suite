@@ -43,7 +43,9 @@ enum
     ID_CLEAR = 3,
     ID_SUBMIT = 4,
     ID_DIALOG = 5,
-    ID_DIALOG_TEXT = 6
+    ID_DIALOG_TEXT = 6,
+    ID_SAVE_FONT_FILE = 7,
+    ID_LOAD_FONT_FILE = 8
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -58,9 +60,17 @@ bool MyApp::OnInit()
     return true;
 }
 
+int MyApp::OnExit()
+{
+    FontFileSerializer::cleanUpInstance(); //Bug if never made?
+    return 0;
+}
+
 BEGIN_EVENT_TABLE(MyWindow, wxWindow)
 EVT_BUTTON(ID_CLEAR, MyWindow::Clear)
 EVT_BUTTON(ID_SUBMIT, MyWindow::Submit)
+EVT_BUTTON(ID_SAVE_FONT_FILE, MyWindow::SaveFontFile)
+EVT_BUTTON(ID_LOAD_FONT_FILE, MyWindow::LoadFontFile)
 END_EVENT_TABLE()
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -76,11 +86,22 @@ void MyWindow::Clear(wxCommandEvent& event)
 
 void MyWindow::Submit(wxCommandEvent& event) 
 {
-    FontFileSerializer* ffs = FontFileSerializer::getInstance();
 
     MyDialog dialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
  
     dialog.ShowModal();
+
+    FontFileSerializer* instance = FontFileSerializer::getInstance();
+    instance->submitGlyphToCurrentFile(dialog.curKeyCode, canvas.lines);
+}
+
+void MyWindow::SaveFontFile(wxCommandEvent& event) {
+    FontFileSerializer* instance = FontFileSerializer::getInstance();
+    instance->saveFontFile();
+}
+
+void MyWindow::LoadFontFile(wxCommandEvent& event) {
+
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -157,18 +178,29 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
     : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* buttonSizerTop = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* buttonSizerBottom = new wxBoxSizer(wxHORIZONTAL);
 
     windowSizer->AddStretchSpacer();
 
-    windowSizer->Add(buttonSizer,
+    windowSizer->Add(buttonSizerTop,
         wxSizerFlags(0).Center());
 
-    buttonSizer->Add(new wxButton(this, ID_CLEAR, "Clear"),
+    buttonSizerTop->Add(new wxButton(this, ID_CLEAR, "Clear"),
         wxSizerFlags(0).Center());
-    buttonSizer->Add(new wxButton(this, ID_SUBMIT, "Submit"),
+    buttonSizerTop->Add(new wxButton(this, ID_SUBMIT, "Submit"),
         wxSizerFlags(0).Center());
+
     windowSizer->Add(&canvas, wxSizerFlags(0).Center());
+
+    windowSizer->Add(buttonSizerBottom,
+        wxSizerFlags(0).Center());
+
+    buttonSizerBottom->Add(new wxButton(this, ID_LOAD_FONT_FILE, "Load Font File"),
+        wxSizerFlags(0).Center());
+    buttonSizerBottom->Add(new wxButton(this, ID_SAVE_FONT_FILE, "Save Font File"),
+        wxSizerFlags(0).Center());
+
 
     windowSizer->AddStretchSpacer();
     SetSizerAndFit(windowSizer);
@@ -194,7 +226,6 @@ MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const
 
 void MyDialog::KeyPressed(wxKeyEvent& event)
 {
-    int keyCode = event.GetKeyCode();
-    wxLogMessage("You pressed: %c", keyCode);
+    curKeyCode = event.GetKeyCode();
     EndModal(0);
 }

@@ -34,6 +34,7 @@ class MyApp : public wxApp
 {
 public:
     virtual bool OnInit();
+    virtual int OnExit();
 };
 
 class MyFrame : public wxFrame
@@ -50,6 +51,7 @@ public:
     void KeyPressed(wxKeyEvent& event);
     friend MyWindow;
 private:
+    int curKeyCode;
     wxDECLARE_EVENT_TABLE();
 };
 
@@ -59,6 +61,8 @@ public:
     MyWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxSize& size = wxDefaultSize, const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
     void Clear(wxCommandEvent& event);
     void Submit(wxCommandEvent& event);
+    void SaveFontFile(wxCommandEvent& event);
+    void LoadFontFile(wxCommandEvent& event);
 private:
     MyPanel canvas;
     wxDECLARE_EVENT_TABLE();
