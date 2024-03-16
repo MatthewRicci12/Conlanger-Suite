@@ -48,9 +48,7 @@ class MyDialog : public wxDialog
 public:
     MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
     void KeyPressed(wxKeyEvent& event);
-    void OnPaint(wxPaintEvent& event);
     friend MyWindow;
-    Lines lines;
 private:
     wxDECLARE_EVENT_TABLE();
 };
@@ -63,7 +61,6 @@ public:
     void Submit(wxCommandEvent& event);
 private:
     MyPanel canvas;
-    MyDialog dialog;
     wxDECLARE_EVENT_TABLE();
 };
 

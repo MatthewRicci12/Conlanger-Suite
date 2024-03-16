@@ -78,10 +78,7 @@ void MyWindow::Submit(wxCommandEvent& event)
 {
     FontFileSerializer* ffs = FontFileSerializer::getInstance();
 
-    dialog.lines = ffs->downSizeLines(canvas.lines);
-
-    dialog.Refresh();
-    dialog.Update();
+    MyDialog dialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
  
     dialog.ShowModal();
 }
@@ -157,8 +154,7 @@ void MyPanel::ClearDrawing()
 
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE),
-      dialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(65, 90))
+    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -187,35 +183,18 @@ MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style
 
 BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 EVT_KEY_UP(MyDialog::KeyPressed)
-EVT_PAINT(MyDialog::OnPaint)
 END_EVENT_TABLE()
 
 MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
     const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
-    //SetFocus();
-    //wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
+    SetFocus();
+    wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
 }
-
-
-void MyDialog::OnPaint(wxPaintEvent& event)
-{
-    wxAutoBufferedPaintDC dc(this);
-    dc.SetBackground(*wxBLACK);
-    dc.Clear();
-
-    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(3));
-    wxDCPenChanger lineUserPenChanger(dc, linePen);
-
-    for (const auto& line : lines) {
-        dc.DrawLines(line.size(), &line[0]);
-    }
-};
 
 void MyDialog::KeyPressed(wxKeyEvent& event)
 {
- /*   int keyCode = event.GetKeyCode();
+    int keyCode = event.GetKeyCode();
     wxLogMessage("You pressed: %c", keyCode);
-    EndModal(0);*/
+    EndModal(0);
 }
