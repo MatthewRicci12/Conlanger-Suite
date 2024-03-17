@@ -87,17 +87,21 @@ void MyWindow::Clear(wxCommandEvent& event)
 void MyWindow::Submit(wxCommandEvent& event) 
 {
 
-    MyDialog dialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
+    KeyDialog dialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
  
     dialog.ShowModal();
 
-    FontFileSerializer* instance = FontFileSerializer::getInstance();
-    instance->submitGlyphToCurrentFile(dialog.curKeyCode, canvas.lines);
+    charMapping[dialog.curKeyCode] = canvas.lines;
 }
 
 void MyWindow::SaveFontFile(wxCommandEvent& event) {
+
+    FileNameDialog dialog(this, "What would you like to name the font file?");
+    dialog.ShowModal();
+
+    std::string fileName = dialog.GetValue().ToStdString();
     FontFileSerializer* instance = FontFileSerializer::getInstance();
-    instance->saveFontFile();
+    instance->saveFontFile(fileName, charMapping);
 }
 
 void MyWindow::LoadFontFile(wxCommandEvent& event) {
@@ -175,7 +179,8 @@ void MyPanel::ClearDrawing()
 
 
 MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE)
+    : wxWindow(parent, id, pos, size, style), canvas(this, ID_DRAWING_WINDOW, wxSize(CANVAS_D, CANVAS_D), wxBORDER_SIMPLE),
+    charMapping(26)
 {
     wxBoxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizerTop = new wxBoxSizer(wxHORIZONTAL);
@@ -213,19 +218,30 @@ MyPanel::MyPanel(wxWindow* parent, wxWindowID id, const wxSize& size, long style
 }
 
 
-BEGIN_EVENT_TABLE(MyDialog, wxDialog)
-EVT_KEY_UP(MyDialog::KeyPressed)
+BEGIN_EVENT_TABLE(KeyDialog, wxDialog)
+EVT_KEY_UP(KeyDialog::KeyPressed)
 END_EVENT_TABLE()
 
-MyDialog::MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
+KeyDialog::KeyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
     const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
     SetFocus();
     wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
 }
 
-void MyDialog::KeyPressed(wxKeyEvent& event)
+void KeyDialog::KeyPressed(wxKeyEvent& event)
 {
     curKeyCode = event.GetKeyCode();
     EndModal(0);
+}
+
+BEGIN_EVENT_TABLE(FileNameDialog, wxTextEntryDialog)
+END_EVENT_TABLE()
+
+
+FileNameDialog::FileNameDialog(wxWindow* parent, const wxString& message, const wxString& caption,
+    const wxString& value, long style, const wxPoint& pos) 
+    : wxTextEntryDialog(parent, message, caption, value, style, pos)
+{
+    SetFocus();
 }

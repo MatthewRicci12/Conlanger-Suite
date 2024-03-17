@@ -3,12 +3,14 @@
 #include <wx/wx.h>
 #endif
 
+#include <unordered_map>
+
 #ifndef FONTCREATOR_H
 #define FONTCREATOR_H
 
 
 class MyWindow;
-class MyDialog;
+class KeyDialog;
 
 typedef std::vector<wxPoint> Line;
 typedef std::vector<Line> Lines;
@@ -44,16 +46,28 @@ public:
 };
 
 
-class MyDialog : public wxDialog
+class KeyDialog : public wxDialog
 {
 public:
-    MyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
+    KeyDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE);
     void KeyPressed(wxKeyEvent& event);
     friend MyWindow;
 private:
     int curKeyCode;
     wxDECLARE_EVENT_TABLE();
 };
+
+class FileNameDialog : public wxTextEntryDialog
+{
+public:
+    FileNameDialog(wxWindow* parent, const wxString& message, const wxString& caption = wxGetTextFromUserPromptStr,
+        const wxString& value = wxEmptyString, long style = wxTextEntryDialogStyle, const wxPoint& pos = wxDefaultPosition);
+    friend MyWindow;
+private:
+    wxDECLARE_EVENT_TABLE();
+};
+
+//(wxWindow* parent, const wxString& message, const wxString& caption = wxGetTextFromUserPromptStr, const wxString& value = wxEmptyString, long style = wxTextEntryDialogStyle, const wxPoint& pos = wxDefaultPosition)
 
 class MyWindow : public wxWindow
 {
@@ -65,6 +79,8 @@ public:
     void LoadFontFile(wxCommandEvent& event);
 private:
     MyPanel canvas;
+    std::unordered_map<char, Lines> charMapping;
+
     wxDECLARE_EVENT_TABLE();
 };
 

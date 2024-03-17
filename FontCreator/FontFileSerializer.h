@@ -19,13 +19,10 @@ public:
 	int normalizeQuotient(double);
 	FontFileSerializer(FontFileSerializer&) = delete;
 	void operator=(const FontFileSerializer&) = delete;
-	void submitGlyphToCurrentFile(char, Lines&);
-	void saveFontFile();
+	void saveFontFile(std::string, const std::unordered_map<char, Lines>&);
 
 private:
 	static FontFileSerializer* instance;
-	static std::ofstream curFileStream;
-	static short fontFileNum;
 	FontFileSerializer() {}
 };
 

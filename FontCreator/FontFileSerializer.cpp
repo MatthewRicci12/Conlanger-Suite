@@ -67,22 +67,29 @@ void FontFileSerializer::cleanUpInstance() {
 	delete instance;
 }
 
-void FontFileSerializer::submitGlyphToCurrentFile(char ch, Lines& lines) {
-	curFileStream << ch;
-	curFileStream << lines.size();
-	for (Line line : lines) {
-		curFileStream << line.size(); // Num POINTS, in the line.
-		for (wxPoint point : line) {
-			curFileStream << point.x;
-			curFileStream << point.y;
-		}
-	}
-}
+void FontFileSerializer::saveFontFile(std::string fileName, const std::unordered_map<char, Lines>& charMapping) {
+	fileName = "FontFiles/" + fileName + ".txt";
 
-void FontFileSerializer::saveFontFile() {
-	curFileStream.close();
+	std::ofstream stream(fileName);
+
+	for (const auto& pair : charMapping) {
+		const char& curChar = pair.first;
+		const Lines& lines = pair.second;
+
+		stream << curChar;
+		stream << lines.size();
+		
+		for (Line line : lines) {
+			stream << line.size();
+			for (const wxPoint& point : line) {
+				stream << point.x;
+				stream << point.y;
+			}
+		}
+
+	}
+
+	wxLogMessage("File saved successfully!"); // I better have some error checking then
 }
 	
 FontFileSerializer* FontFileSerializer::instance = nullptr;
-std::ofstream FontFileSerializer::curFileStream("FontFiles/font1.txt", std::ios_base::binary);
-short FontFileSerializer::fontFileNum = 2;
