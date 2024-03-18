@@ -45,7 +45,9 @@ enum
     ID_DIALOG = 5,
     ID_DIALOG_TEXT = 6,
     ID_SAVE_FONT_FILE = 7,
-    ID_LOAD_FONT_FILE = 8
+    ID_LOAD_FONT_FILE = 8,
+    ID_TRY_FONT = 9,
+    ID_TYPING_WINDOW = 10
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -71,12 +73,21 @@ EVT_BUTTON(ID_CLEAR, MyWindow::Clear)
 EVT_BUTTON(ID_SUBMIT, MyWindow::Submit)
 EVT_BUTTON(ID_SAVE_FONT_FILE, MyWindow::SaveFontFile)
 EVT_BUTTON(ID_LOAD_FONT_FILE, MyWindow::LoadFontFile)
+EVT_BUTTON(ID_TRY_FONT, MyWindow::TryFont)
 END_EVENT_TABLE()
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
+    CreateCanvasWindow();
+}
+
+void MyFrame::CreateCanvasWindow() {
     MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
+}
+
+void MyFrame::CreateTypingWindow() {
+    TypingWindow* tw = new TypingWindow(this, ID_TYPING_WINDOW);
 }
 
 void MyWindow::Clear(wxCommandEvent& event) 
@@ -106,6 +117,12 @@ void MyWindow::SaveFontFile(wxCommandEvent& event) {
 
 void MyWindow::LoadFontFile(wxCommandEvent& event) {
 
+}
+
+void MyWindow::TryFont(wxCommandEvent& event) {
+    Hide();
+    MyFrame* parent = dynamic_cast<MyFrame*>(GetParent());
+    parent->CreateTypingWindow();
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -205,7 +222,10 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
         wxSizerFlags(0).Center());
     buttonSizerBottom->Add(new wxButton(this, ID_SAVE_FONT_FILE, "Save Font File"),
         wxSizerFlags(0).Center());
+    windowSizer->AddStretchSpacer();
 
+    windowSizer->Add(new wxButton(this, ID_TRY_FONT, "Try out font"),
+        wxSizerFlags(0).Center());
 
     windowSizer->AddStretchSpacer();
     SetSizerAndFit(windowSizer);
@@ -244,4 +264,11 @@ FileNameDialog::FileNameDialog(wxWindow* parent, const wxString& message, const 
     : wxTextEntryDialog(parent, message, caption, value, style, pos)
 {
     SetFocus();
+}
+
+
+TypingWindow::TypingWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
+    : wxWindow(parent, id, pos, size, style)
+{
+
 }

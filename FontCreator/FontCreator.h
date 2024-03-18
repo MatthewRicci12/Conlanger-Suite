@@ -39,13 +39,6 @@ public:
     virtual int OnExit();
 };
 
-class MyFrame : public wxFrame
-{
-public:
-    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
-};
-
-
 class KeyDialog : public wxDialog
 {
 public:
@@ -77,11 +70,33 @@ public:
     void Submit(wxCommandEvent& event);
     void SaveFontFile(wxCommandEvent& event);
     void LoadFontFile(wxCommandEvent& event);
+    void TryFont(wxCommandEvent& event);
 private:
     MyPanel canvas;
     std::unordered_map<char, Lines> charMapping;
 
     wxDECLARE_EVENT_TABLE();
 };
+
+class TypingWindow : public wxWindow
+{
+public:
+    TypingWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxSize& size = wxDefaultSize, 
+        const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
+
+    wxDECLARE_EVENT_TABLE();
+};
+
+class MyFrame : public wxFrame
+{
+public:
+    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    friend MyWindow;
+private:
+    void CreateCanvasWindow();
+    void CreateTypingWindow();
+};
+
+
 
 #endif
