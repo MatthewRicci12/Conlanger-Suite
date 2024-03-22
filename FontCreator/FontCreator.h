@@ -60,8 +60,6 @@ private:
     wxDECLARE_EVENT_TABLE();
 };
 
-//(wxWindow* parent, const wxString& message, const wxString& caption = wxGetTextFromUserPromptStr, const wxString& value = wxEmptyString, long style = wxTextEntryDialogStyle, const wxPoint& pos = wxDefaultPosition)
-
 class MyWindow : public wxWindow
 {
 public:
@@ -78,12 +76,14 @@ private:
     wxDECLARE_EVENT_TABLE();
 };
 
-class TypingWindow : public wxWindow
+class TypingWindow : public wxPanel
 {
 public:
     TypingWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxSize& size = wxDefaultSize, 
         const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
-
+private:
+    void Back(wxCommandEvent& event);
+    void Clear(wxCommandEvent& event);
     wxDECLARE_EVENT_TABLE();
 };
 

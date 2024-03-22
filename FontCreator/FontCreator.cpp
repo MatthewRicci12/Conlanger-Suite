@@ -47,7 +47,9 @@ enum
     ID_SAVE_FONT_FILE = 7,
     ID_LOAD_FONT_FILE = 8,
     ID_TRY_FONT = 9,
-    ID_TYPING_WINDOW = 10
+    ID_TYPING_WINDOW = 10,
+    ID_TYPING_WINDOW_BACK = 11,
+    ID_TYPING_WINDOW_CLEAR = 12
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -68,6 +70,27 @@ int MyApp::OnExit()
     return 0;
 }
 
+MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
+    : wxFrame(NULL, wxID_ANY, title, pos, size)
+{
+    SetBackgroundColour(*wxWHITE);
+    CreateCanvasWindow();
+}
+
+void MyFrame::CreateCanvasWindow() {
+    MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
+    Refresh();
+}
+
+void MyFrame::CreateTypingWindow() {
+    TypingWindow* tw = new TypingWindow(this, ID_TYPING_WINDOW, GetSize(), wxDefaultPosition);
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    tw->SetBackgroundColour(*wxBLACK);
+    topSizer->Add(tw, 1, wxEXPAND);
+    SetSizerAndFit(topSizer);
+    Refresh();
+}
+
 BEGIN_EVENT_TABLE(MyWindow, wxWindow)
 EVT_BUTTON(ID_CLEAR, MyWindow::Clear)
 EVT_BUTTON(ID_SUBMIT, MyWindow::Submit)
@@ -76,19 +99,7 @@ EVT_BUTTON(ID_LOAD_FONT_FILE, MyWindow::LoadFontFile)
 EVT_BUTTON(ID_TRY_FONT, MyWindow::TryFont)
 END_EVENT_TABLE()
 
-MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-    : wxFrame(NULL, wxID_ANY, title, pos, size)
-{
-    CreateCanvasWindow();
-}
 
-void MyFrame::CreateCanvasWindow() {
-    MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
-}
-
-void MyFrame::CreateTypingWindow() {
-    TypingWindow* tw = new TypingWindow(this, ID_TYPING_WINDOW);
-}
 
 void MyWindow::Clear(wxCommandEvent& event) 
 {
@@ -266,9 +277,29 @@ FileNameDialog::FileNameDialog(wxWindow* parent, const wxString& message, const 
     SetFocus();
 }
 
+BEGIN_EVENT_TABLE(TypingWindow, wxPanel)
+EVT_BUTTON(ID_TYPING_WINDOW_BACK, TypingWindow::Back)
+EVT_BUTTON(ID_TYPING_WINDOW_CLEAR, TypingWindow::Clear)
+END_EVENT_TABLE()
 
 TypingWindow::TypingWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxWindow(parent, id, pos, size, style)
+    : wxPanel(parent, id, pos, size, style)
 {
+    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+    buttonSizer->SetMinSize(size);
+
+    buttonSizer->Add(new wxButton(this, ID_TYPING_WINDOW_BACK, "Back"),
+         wxSizerFlags(0).Center());
+     buttonSizer->Add(new wxButton(this, ID_TYPING_WINDOW_CLEAR, "Clear"),
+         wxSizerFlags(0).Center());
+
+     SetSizerAndFit(buttonSizer);
+}
+
+void TypingWindow::Back(wxCommandEvent& event) {
+
+}
+
+void TypingWindow::Clear(wxCommandEvent& event) {
 
 }
