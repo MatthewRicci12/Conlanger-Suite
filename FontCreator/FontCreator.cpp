@@ -285,15 +285,25 @@ END_EVENT_TABLE()
 TypingWindow::TypingWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
     : wxPanel(parent, id, pos, size, style)
 {
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    topSizer->SetMinSize(size);
+
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-    buttonSizer->SetMinSize(size);
+    buttonSizer->SetMinSize(wxSize(0, size.GetWidth()));
 
-    buttonSizer->Add(new wxButton(this, ID_TYPING_WINDOW_BACK, "Back"),
-         wxSizerFlags(0).Center());
-     buttonSizer->Add(new wxButton(this, ID_TYPING_WINDOW_CLEAR, "Clear"),
-         wxSizerFlags(0).Center());
 
-     SetSizerAndFit(buttonSizer);
+    wxButton* backButton = new wxButton(this, ID_TYPING_WINDOW_BACK, "Back", wxDefaultPosition, wxDefaultSize);
+    wxButton* clearButton = new wxButton(this, ID_TYPING_WINDOW_CLEAR, "Clear", wxDefaultPosition, wxDefaultSize);
+    backButton->SetForegroundColour(*wxBLACK);
+    clearButton->SetForegroundColour(*wxBLACK);
+
+    buttonSizer->Add(backButton, wxSizerFlags(0));
+    buttonSizer->Add(clearButton, wxSizerFlags(0));
+
+
+     topSizer->Add(buttonSizer, wxSizerFlags(0).Center());
+
+     SetSizerAndFit(topSizer);
 }
 
 void TypingWindow::Back(wxCommandEvent& event) {
