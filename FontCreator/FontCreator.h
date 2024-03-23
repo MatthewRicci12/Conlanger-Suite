@@ -82,6 +82,7 @@ public:
     TypingWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxSize& size = wxDefaultSize, 
         const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
 private:
+    void KeyPressed(wxKeyEvent& event);
     void Back(wxCommandEvent& event);
     void Clear(wxCommandEvent& event);
     wxDECLARE_EVENT_TABLE();
@@ -96,7 +97,6 @@ private:
     void CreateCanvasWindow();
     void CreateTypingWindow();
 };
-
 
 
 #endif

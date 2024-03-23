@@ -23,8 +23,8 @@ namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
 using namespace logging::trivial; 
-//src::severity_logger<severity_level> lg;
-//char s[128];
+src::severity_logger<severity_level> lg;
+char s[128];
 
 void init()
 {
@@ -79,11 +79,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 void MyFrame::CreateCanvasWindow() {
     MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
+  
     Refresh();
 }
 
 void MyFrame::CreateTypingWindow() {
     TypingWindow* tw = new TypingWindow(this, ID_TYPING_WINDOW, GetSize(), wxDefaultPosition);
+    
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
     tw->SetBackgroundColour(*wxBLACK);
     topSizer->Add(tw, 1, wxEXPAND);
@@ -258,6 +260,7 @@ KeyDialog::KeyDialog(wxWindow* parent, wxWindowID id, const wxString& title, con
 {
     SetFocus();
     wxStaticText* text = new wxStaticText(this, ID_DIALOG_TEXT, "Enter a key to map this glyph to.");
+
 }
 
 void KeyDialog::KeyPressed(wxKeyEvent& event)
@@ -280,11 +283,14 @@ FileNameDialog::FileNameDialog(wxWindow* parent, const wxString& message, const 
 BEGIN_EVENT_TABLE(TypingWindow, wxPanel)
 EVT_BUTTON(ID_TYPING_WINDOW_BACK, TypingWindow::Back)
 EVT_BUTTON(ID_TYPING_WINDOW_CLEAR, TypingWindow::Clear)
+EVT_KEY_UP(TypingWindow::KeyPressed)
 END_EVENT_TABLE()
+
 
 TypingWindow::TypingWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
     : wxPanel(parent, id, pos, size, style)
 {
+    SetFocusIgnoringChildren();
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
     topSizer->SetMinSize(size);
 
@@ -294,22 +300,29 @@ TypingWindow::TypingWindow(wxWindow* parent, wxWindowID id, const wxSize& size, 
 
     wxButton* backButton = new wxButton(this, ID_TYPING_WINDOW_BACK, "Back", wxDefaultPosition, wxDefaultSize);
     wxButton* clearButton = new wxButton(this, ID_TYPING_WINDOW_CLEAR, "Clear", wxDefaultPosition, wxDefaultSize);
+    backButton->SetCanFocus(false);
+    clearButton->SetCanFocus(false);
     backButton->SetForegroundColour(*wxBLACK);
     clearButton->SetForegroundColour(*wxBLACK);
 
     buttonSizer->Add(backButton, wxSizerFlags(0));
     buttonSizer->Add(clearButton, wxSizerFlags(0));
+  
+    topSizer->Add(buttonSizer, wxSizerFlags(0).Center());
 
-
-     topSizer->Add(buttonSizer, wxSizerFlags(0).Center());
-
-     SetSizerAndFit(topSizer);
+    SetSizerAndFit(topSizer);
 }
 
 void TypingWindow::Back(wxCommandEvent& event) {
-
+    LOG_MSG("Back button pressed");
 }
 
 void TypingWindow::Clear(wxCommandEvent& event) {
-
+    LOG_MSG("Clear button pressed");
 }
+
+void TypingWindow::KeyPressed(wxKeyEvent& event) {
+    LOG_MSG("Panel pressed");
+}
+
+
