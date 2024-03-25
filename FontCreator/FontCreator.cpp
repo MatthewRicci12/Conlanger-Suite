@@ -24,11 +24,11 @@ namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
 using namespace logging::trivial; 
 src::severity_logger<severity_level> lg;
-char s[128];
+char s[256];
 
 void init()
 {
-    logging::add_file_log("sample.log");
+    logging::add_file_log("debug.log");
 
     logging::core::get()->set_filter
     (
@@ -73,13 +73,15 @@ int MyApp::OnExit()
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-    SetBackgroundColour(*wxWHITE);
+    //SetBackgroundColour(*wxWHITE);
     CreateCanvasWindow();
 }
 
 void MyFrame::CreateCanvasWindow() {
     MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
-  
+    LOG_MSG("Window size on create: (%d, %d)\n", w->GetSize().GetWidth(), w->GetSize().GetHeight());
+    LOG_MSG("Frame size on create: (%d, %d)\n", GetSize().GetWidth(), GetSize().GetHeight());
+
     Refresh();
 }
 
@@ -89,9 +91,23 @@ void MyFrame::CreateTypingWindow() {
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
     tw->SetBackgroundColour(*wxBLACK);
     topSizer->Add(tw, 1, wxEXPAND);
-    SetSizerAndFit(topSizer);
+    SetSizer(topSizer);
     Refresh();
 }
+
+void MyFrame::ShowCanvasWindow() {
+    TypingWindow* tw = dynamic_cast<TypingWindow*>(FindWindow(ID_TYPING_WINDOW));
+    tw->Destroy();
+
+    MyWindow* topWindow = dynamic_cast<MyWindow*>(FindWindow(ID_TOP_WINDOW));
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    topSizer->Add(topWindow, 1, wxEXPAND);
+    SetSizer(topSizer); 
+
+    topWindow->Show();
+    Refresh();
+}
+
 
 BEGIN_EVENT_TABLE(MyWindow, wxWindow)
 EVT_BUTTON(ID_CLEAR, MyWindow::Clear)
@@ -135,7 +151,13 @@ void MyWindow::LoadFontFile(wxCommandEvent& event) {
 void MyWindow::TryFont(wxCommandEvent& event) {
     Hide();
     MyFrame* parent = dynamic_cast<MyFrame*>(GetParent());
+    LOG_MSG("Window size after hide: (%d, %d)\n", GetSize().GetWidth(), GetSize().GetHeight());
+    LOG_MSG("Frame size after hide: (%d, %d)\n", parent->GetSize().GetWidth(), parent->GetSize().GetHeight());
     parent->CreateTypingWindow();
+}
+
+decltype(auto) MyWindow::GetMap() {
+    return charMapping;
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -314,15 +336,15 @@ TypingWindow::TypingWindow(wxWindow* parent, wxWindowID id, const wxSize& size, 
 }
 
 void TypingWindow::Back(wxCommandEvent& event) {
-    LOG_MSG("Back button pressed");
+    MyFrame* parent = dynamic_cast<MyFrame*>(GetParent());
+    parent->ShowCanvasWindow();
 }
 
 void TypingWindow::Clear(wxCommandEvent& event) {
-    LOG_MSG("Clear button pressed");
+
 }
 
 void TypingWindow::KeyPressed(wxKeyEvent& event) {
-    LOG_MSG("Panel pressed");
+    int curKeyCode = event.GetKeyCode();
 }
-
 

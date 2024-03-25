@@ -12,5 +12,6 @@ FontCreator/small.ico
 FontCreator/targetver.h
 .vs/slnx.sqlite
 .vs/VSWorkspaceState.json
-FontCreator/sample.log
+FontCreator/debug.log
 FontCreator/backup.txt
+FontCreator/FontFiles/

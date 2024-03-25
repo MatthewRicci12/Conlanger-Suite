@@ -69,6 +69,7 @@ public:
     void SaveFontFile(wxCommandEvent& event);
     void LoadFontFile(wxCommandEvent& event);
     void TryFont(wxCommandEvent& event);
+    decltype(auto) GetMap();
 private:
     MyPanel canvas;
     std::unordered_map<char, Lines> charMapping;
@@ -85,6 +86,7 @@ private:
     void KeyPressed(wxKeyEvent& event);
     void Back(wxCommandEvent& event);
     void Clear(wxCommandEvent& event);
+    decltype(auto) GetCharMap();
     wxDECLARE_EVENT_TABLE();
 };
 
@@ -93,9 +95,11 @@ class MyFrame : public wxFrame
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     friend MyWindow;
+    friend TypingWindow;
 private:
     void CreateCanvasWindow();
     void CreateTypingWindow();
+    void ShowCanvasWindow();
 };
 
 
