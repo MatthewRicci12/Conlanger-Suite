@@ -86,7 +86,9 @@ void MyFrame::CreateCanvasWindow() {
 }
 
 void MyFrame::CreateTypingWindow() {
-    TypingWindow* tw = new TypingWindow(this, ID_TYPING_WINDOW, GetSize(), wxDefaultPosition);
+    MyWindow* window = dynamic_cast<MyWindow*>(FindWindow(ID_TOP_WINDOW));
+    decltype(auto) charMappingRef = window->GetMap();
+    TypingWindow* tw = new TypingWindow(this, charMappingRef, ID_TYPING_WINDOW, GetSize(), wxDefaultPosition);
     
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
     tw->SetBackgroundColour(*wxBLACK);
@@ -107,7 +109,6 @@ void MyFrame::ShowCanvasWindow() {
     topWindow->Show();
     Refresh();
 }
-
 
 BEGIN_EVENT_TABLE(MyWindow, wxWindow)
 EVT_BUTTON(ID_CLEAR, MyWindow::Clear)
@@ -156,8 +157,8 @@ void MyWindow::TryFont(wxCommandEvent& event) {
     parent->CreateTypingWindow();
 }
 
-decltype(auto) MyWindow::GetMap() {
-    return charMapping;
+std::unordered_map<char, Lines>& MyWindow::GetMap() const {
+    return const_cast<std::unordered_map<char, Lines>&>(charMapping);
 }
 
 BEGIN_EVENT_TABLE(MyPanel, wxPanel)
@@ -309,8 +310,9 @@ EVT_KEY_UP(TypingWindow::KeyPressed)
 END_EVENT_TABLE()
 
 
-TypingWindow::TypingWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wxPoint& pos, long style)
-    : wxPanel(parent, id, pos, size, style)
+TypingWindow::TypingWindow(wxWindow* parent, const std::unordered_map<char, Lines>& charMappingRef, wxWindowID id,
+    const wxSize& size, const wxPoint& pos, long style)
+    : wxPanel(parent, id, pos, size, style), xOffset(0), yOffset(0), charMapping(charMappingRef)
 {
     SetFocusIgnoringChildren();
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
@@ -344,7 +346,12 @@ void TypingWindow::Clear(wxCommandEvent& event) {
 
 }
 
+
 void TypingWindow::KeyPressed(wxKeyEvent& event) {
     int curKeyCode = event.GetKeyCode();
+
+    if (charMapping.find('F') != charMapping.end()) {
+        wxLogMessage("I know her!");
+    }
 }
 

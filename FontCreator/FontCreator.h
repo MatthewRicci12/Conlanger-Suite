@@ -69,7 +69,7 @@ public:
     void SaveFontFile(wxCommandEvent& event);
     void LoadFontFile(wxCommandEvent& event);
     void TryFont(wxCommandEvent& event);
-    decltype(auto) GetMap();
+    std::unordered_map<char, Lines>& GetMap() const;
 private:
     MyPanel canvas;
     std::unordered_map<char, Lines> charMapping;
@@ -80,13 +80,15 @@ private:
 class TypingWindow : public wxPanel
 {
 public:
-    TypingWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxSize& size = wxDefaultSize, 
-        const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
+    TypingWindow(wxWindow* parent, const std::unordered_map<char, Lines>& charMappingRef, wxWindowID id = wxID_ANY,
+        const wxSize& size = wxDefaultSize, const wxPoint& pos = wxDefaultPosition, long style = wxTAB_TRAVERSAL);
 private:
+    int xOffset;
+    int yOffset;
     void KeyPressed(wxKeyEvent& event);
     void Back(wxCommandEvent& event);
     void Clear(wxCommandEvent& event);
-    decltype(auto) GetCharMap();
+    const std::unordered_map<char, Lines>& charMapping;
     wxDECLARE_EVENT_TABLE();
 };
 
