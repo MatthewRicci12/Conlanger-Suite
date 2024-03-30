@@ -85,6 +85,7 @@ public:
 private:
     int xOffset;
     int yOffset;
+    char curKeyCode;
     void KeyPressed(wxKeyEvent& event);
     void Back(wxCommandEvent& event);
     void Clear(wxCommandEvent& event);

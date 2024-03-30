@@ -29,14 +29,6 @@ FontFileSerializer* FontFileSerializer::getInstance() {
 }
 
 Lines FontFileSerializer::downSizeLines(Lines& lines) {
-	//LOG_MSG("=====================BEFORE=====================\n");
-	//for (Line line : lines) {
-	//	for (wxPoint point : line) {
-	//		LOG_MSG("(%d, %d)\n", point.x, point.y);
-	//	}
-	//}
-	//LOG_MSG("=====================AFTER=====================\n");
-
 	Lines retVal;
 	wxPoint downscaledPoint;
 	for (Line line : lines) {
@@ -44,7 +36,6 @@ Lines FontFileSerializer::downSizeLines(Lines& lines) {
 		for (const wxPoint& point : line) {
 			downscaledPoint = downScalePoint(point);
 			curLine.push_back(downscaledPoint);
-			//LOG_MSG("(%d, %d)\n", downscaledPoint.x, downscaledPoint.y);
 		}
 		retVal.push_back(curLine);
 	}

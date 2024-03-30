@@ -131,8 +131,9 @@ void MyWindow::Submit(wxCommandEvent& event)
     KeyDialog dialog(this, ID_DIALOG, "Input", wxDefaultPosition, wxSize(300, 150));
  
     dialog.ShowModal();
+    FontFileSerializer* instance = FontFileSerializer::getInstance();
 
-    charMapping[dialog.curKeyCode] = canvas.lines;
+    charMapping[dialog.curKeyCode] = instance->downSizeLines(canvas.lines);
 }
 
 void MyWindow::SaveFontFile(wxCommandEvent& event) {
@@ -312,7 +313,7 @@ END_EVENT_TABLE()
 
 TypingWindow::TypingWindow(wxWindow* parent, const std::unordered_map<char, Lines>& charMappingRef, wxWindowID id,
     const wxSize& size, const wxPoint& pos, long style)
-    : wxPanel(parent, id, pos, size, style), xOffset(0), yOffset(0), charMapping(charMappingRef)
+    : wxPanel(parent, id, pos, size, style), xOffset(0), yOffset(50), charMapping(charMappingRef)
 {
     SetFocusIgnoringChildren();
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
@@ -343,15 +344,31 @@ void TypingWindow::Back(wxCommandEvent& event) {
 }
 
 void TypingWindow::Clear(wxCommandEvent& event) {
-
+    wxClientDC cdc(this);
+    wxBufferedDC dc(&cdc);
+    dc.Clear();
 }
 
 
 void TypingWindow::KeyPressed(wxKeyEvent& event) {
-    int curKeyCode = event.GetKeyCode();
+    char curKeyCode = event.GetKeyCode();
 
-    if (charMapping.find('F') != charMapping.end()) {
-        wxLogMessage("I know her!");
+    if (charMapping.find(curKeyCode) != charMapping.end()) {
+        wxClientDC cdc(this);
+        wxBufferedDC dc(&cdc);
+
+        auto& lines = charMapping.at(curKeyCode);
+
+        dc.SetBackground(*wxBLACK_BRUSH);
+
+        wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(3));
+        wxDCPenChanger lineUserPenChanger(dc, linePen);
+
+        for (const auto& line : lines)
+        {
+            dc.DrawLines(line.size(), &line[0], xOffset, yOffset);
+        }
+        xOffset += 50;
+
     }
 }
-
