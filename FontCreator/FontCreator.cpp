@@ -370,5 +370,10 @@ void TypingWindow::KeyPressed(wxKeyEvent& event) {
         }
         xOffset += 50;
 
+        if (xOffset+50 > GetClientSize().GetWidth()) {
+            xOffset = 0;
+            yOffset += 50;
+        }
+
     }
 }
