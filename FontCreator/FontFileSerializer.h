@@ -20,8 +20,12 @@ public:
 	FontFileSerializer(FontFileSerializer&) = delete;
 	void operator=(const FontFileSerializer&) = delete;
 	void saveFontFile(std::string, const std::unordered_map<char, Lines>&);
-
+	void loadFontFile(std::string, std::unordered_map<char, Lines>&);
 private:
+	void writeIntegralToFile(std::ofstream&, const unsigned int*);
+	void readFromFileToIntegral(std::ifstream&, unsigned int*);
+	void writeIntegralToFile(std::ofstream&, const int*);
+	void readFromFileToIntegral(std::ifstream&, int*);
 	static FontFileSerializer* instance;
 	FontFileSerializer() {}
 };

@@ -2,6 +2,7 @@
 #include "FontCreator.h"
 #include <cmath>
 #include <fstream>
+#include <bitset>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
@@ -17,8 +18,8 @@ namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
 using namespace logging::trivial;
-//char s[128];
-//src::severity_logger<severity_level> lg;
+char s[128];
+src::severity_logger<severity_level> lg;
 
 
 FontFileSerializer* FontFileSerializer::getInstance() {
@@ -48,7 +49,6 @@ wxPoint FontFileSerializer::downScalePoint(wxPoint point) {
 
 int FontFileSerializer::normalizeQuotient(double quotient) {
 	double complement = ceil(quotient) - quotient;
-	//LOG_MSG("Quotient: %lf, ceiling: %lf complement: %lf\n", quotient, ceil(quotient), complement);
 	if (complement == 0.0) return (int)quotient;
 	return complement >= 0.5 ? floor(quotient) : ceil(quotient);
 }
@@ -58,29 +58,94 @@ void FontFileSerializer::cleanUpInstance() {
 	delete instance;
 }
 
+void FontFileSerializer::loadFontFile(std::string fileName, std::unordered_map<char, Lines>& lines) {
+	//Need some SERIOUS error checking here
+	std::ifstream stream(fileName, std::ifstream::binary);
+	if (!stream.good()) {
+		wxLogMessage("Loaded in file was bad.");
+		exit(1);
+	}
+
+	char curChar = 0;
+	size_t linesSize = 0;
+	size_t curLineSize = 0;
+	int curX = 0;
+	int curY = 0;
+
+	while (stream) {
+		stream >> curChar; //Read this char
+		readFromFileToIntegral(stream, &linesSize);
+
+		Lines curLines(linesSize); //Initialize its Lines --> BUG HERE
+
+		for (int i = 0; i < linesSize; ++i) {
+
+			readFromFileToIntegral(stream, &curLineSize); //Within that Lines, read the size of this Line
+			Line curLine(curLineSize); //Initialize
+
+			for (int j = 0; j < curLineSize; ++j) {
+
+				readFromFileToIntegral(stream, &curX);
+				readFromFileToIntegral(stream, &curY);
+				wxPoint curPoint(curX, curY);
+				curLine[j] = curPoint;
+				
+			}
+			curLines[i] = curLine;
+
+		}
+		lines[curChar] = curLines;
+	}
+}
+
 void FontFileSerializer::saveFontFile(std::string fileName, const std::unordered_map<char, Lines>& charMapping) {
 	fileName = "FontFiles/" + fileName + ".txt";
 
-	std::ofstream stream(fileName);
+	std::ofstream stream(fileName, std::ofstream::binary);
+
+	char curChar = 0;
+	size_t linesSize = 0;
+	size_t curLineSize = 0;
+	int curX = 0;
+	int curY = 0;
 
 	for (const auto& pair : charMapping) {
-		const char& curChar = pair.first;
+		const char curChar = pair.first;
 		const Lines& lines = pair.second;
 
 		stream << curChar;
-		stream << lines.size();
+		linesSize = lines.size();
+		writeIntegralToFile(stream, &linesSize);
 		
 		for (Line line : lines) {
-			stream << line.size();
+			curLineSize = line.size();
+			writeIntegralToFile(stream, &curLineSize);
 			for (const wxPoint& point : line) {
-				stream << point.x;
-				stream << point.y;
+				writeIntegralToFile(stream, &point.x);
+				writeIntegralToFile(stream, &point.y);
 			}
 		}
 
 	}
 
 	wxLogMessage("File saved successfully!"); // I better have some error checking then
+}
+
+//IMPORTANT NOTE: I can get away with this being an unsigned, because wxPoint x and y are bounded by
+//(0, 50).
+void FontFileSerializer::writeIntegralToFile(std::ofstream& file, const unsigned int* integral) {
+	file.write(reinterpret_cast<const char*>(integral), sizeof(integral));
+}
+
+void FontFileSerializer::writeIntegralToFile(std::ofstream& file, const int* integral) {
+	file.write(reinterpret_cast<const char*>(integral), sizeof(integral));
+}
+
+void FontFileSerializer::readFromFileToIntegral(std::ifstream& file, unsigned int* integral) {
+	file.read(reinterpret_cast<char*>(integral), sizeof(integral));
+}
+void FontFileSerializer::readFromFileToIntegral(std::ifstream& file, int* integral) {
+	file.read(reinterpret_cast<char*>(integral), sizeof(integral));
 }
 	
 FontFileSerializer* FontFileSerializer::instance = nullptr;

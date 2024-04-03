@@ -23,8 +23,8 @@ namespace src = boost::log::sources;
 namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
 using namespace logging::trivial; 
-src::severity_logger<severity_level> lg;
-char s[256];
+//src::severity_logger<severity_level> lg;
+//char s[256];
 
 void init()
 {
@@ -79,8 +79,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 void MyFrame::CreateCanvasWindow() {
     MyWindow* w = new MyWindow(this, ID_TOP_WINDOW);
-    LOG_MSG("Window size on create: (%d, %d)\n", w->GetSize().GetWidth(), w->GetSize().GetHeight());
-    LOG_MSG("Frame size on create: (%d, %d)\n", GetSize().GetWidth(), GetSize().GetHeight());
 
     Refresh();
 }
@@ -147,14 +145,20 @@ void MyWindow::SaveFontFile(wxCommandEvent& event) {
 }
 
 void MyWindow::LoadFontFile(wxCommandEvent& event) {
+    wxFileDialog openFileDialog(this, _("Open font file"), "", "",
+        "Text files (*.txt)|*.txt", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    openFileDialog.SetDirectory(MyApp::projectRoot + R"(\FontFiles\)");
+    if (openFileDialog.ShowModal() == wxID_CANCEL) return;
 
+    std::string fileName = openFileDialog.GetPath().ToStdString();
+
+    FontFileSerializer* instance = FontFileSerializer::getInstance();
+    instance->loadFontFile(fileName, charMapping);
 }
 
 void MyWindow::TryFont(wxCommandEvent& event) {
     Hide();
     MyFrame* parent = dynamic_cast<MyFrame*>(GetParent());
-    LOG_MSG("Window size after hide: (%d, %d)\n", GetSize().GetWidth(), GetSize().GetHeight());
-    LOG_MSG("Frame size after hide: (%d, %d)\n", parent->GetSize().GetWidth(), parent->GetSize().GetHeight());
     parent->CreateTypingWindow();
 }
 
@@ -293,9 +297,6 @@ void KeyDialog::KeyPressed(wxKeyEvent& event)
     EndModal(0);
 }
 
-BEGIN_EVENT_TABLE(FileNameDialog, wxTextEntryDialog)
-END_EVENT_TABLE()
-
 
 FileNameDialog::FileNameDialog(wxWindow* parent, const wxString& message, const wxString& caption,
     const wxString& value, long style, const wxPoint& pos) 
@@ -376,4 +377,17 @@ void TypingWindow::KeyPressed(wxKeyEvent& event) {
         }
 
     }
+}
+
+std::string MyApp::projectRoot = MyApp::getProjectRoot();
+std::string MyApp::getProjectRoot() {
+    TCHAR buffer[MAX_PATH] = { 0 };
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+    std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
+    std::wstring curDirWide = std::wstring(buffer).substr(0, pos);
+    std::string curDir = std::string(curDirWide.begin(), curDirWide.end()); //Gotta be in its own func
+
+    auto posOfProjectSuffix = curDir.rfind(PROJECT_SUFFIX);
+
+    return curDir.substr(0, posOfProjectSuffix);
 }

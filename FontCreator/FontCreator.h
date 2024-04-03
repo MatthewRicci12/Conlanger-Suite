@@ -8,6 +8,7 @@
 #ifndef FONTCREATOR_H
 #define FONTCREATOR_H
 
+#define PROJECT_SUFFIX R"(\Debug)"
 
 class MyWindow;
 class KeyDialog;
@@ -37,6 +38,9 @@ class MyApp : public wxApp
 public:
     virtual bool OnInit();
     virtual int OnExit();
+    static std::string projectRoot;
+private:
+    static std::string getProjectRoot();
 };
 
 class KeyDialog : public wxDialog
@@ -56,8 +60,6 @@ public:
     FileNameDialog(wxWindow* parent, const wxString& message, const wxString& caption = wxGetTextFromUserPromptStr,
         const wxString& value = wxEmptyString, long style = wxTextEntryDialogStyle, const wxPoint& pos = wxDefaultPosition);
     friend MyWindow;
-private:
-    wxDECLARE_EVENT_TABLE();
 };
 
 class MyWindow : public wxWindow
