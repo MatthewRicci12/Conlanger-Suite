@@ -72,8 +72,9 @@ void FontFileSerializer::loadFontFile(std::string fileName, std::unordered_map<c
 	int curX = 0;
 	int curY = 0;
 
-	while (stream) {
-		stream >> curChar; //Read this char
+	//while stream...see https://softwareengineering.stackexchange.com/questions/318081/why-does-ifstream-eof-not-return-true-after-reading-the-last-line-of-a-file
+	while (stream >> curChar) {
+		//stream >> curChar; //Read this char
 		readFromFileToIntegral(stream, &linesSize);
 
 		Lines curLines(linesSize); //Initialize its Lines --> BUG HERE
