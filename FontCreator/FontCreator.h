@@ -87,8 +87,8 @@ public:
 private:
     int xOffset;
     int yOffset;
-    char curKeyCode;
     void KeyPressed(wxKeyEvent& event);
+    void OnClick(wxMouseEvent& event);
     void Back(wxCommandEvent& event);
     void Clear(wxCommandEvent& event);
     const std::unordered_map<char, Lines>& charMapping;

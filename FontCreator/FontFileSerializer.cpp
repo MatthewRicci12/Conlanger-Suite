@@ -61,9 +61,10 @@ void FontFileSerializer::cleanUpInstance() {
 void FontFileSerializer::loadFontFile(std::string fileName, std::unordered_map<char, Lines>& lines) {
 	//Need some SERIOUS error checking here
 	std::ifstream stream(fileName, std::ifstream::binary);
-	if (!stream.good()) {
-		wxLogMessage("Loaded in file was bad.");
-		exit(1);
+
+	if (!stream) {
+		wxLogMessage("Something went wrong opening the file.");
+		return;
 	}
 
 	char curChar = 0;
@@ -71,6 +72,7 @@ void FontFileSerializer::loadFontFile(std::string fileName, std::unordered_map<c
 	size_t curLineSize = 0;
 	int curX = 0;
 	int curY = 0;
+
 
 	//while stream...see https://softwareengineering.stackexchange.com/questions/318081/why-does-ifstream-eof-not-return-true-after-reading-the-last-line-of-a-file
 	while (stream >> curChar) {
@@ -90,19 +92,28 @@ void FontFileSerializer::loadFontFile(std::string fileName, std::unordered_map<c
 				readFromFileToIntegral(stream, &curY);
 				wxPoint curPoint(curX, curY);
 				curLine[j] = curPoint;
-				
+
 			}
 			curLines[i] = curLine;
 
 		}
 		lines[curChar] = curLines;
 	}
+
+
+
+	
 }
 
 void FontFileSerializer::saveFontFile(std::string fileName, const std::unordered_map<char, Lines>& charMapping) {
 	fileName = "FontFiles/" + fileName + ".txt";
 
 	std::ofstream stream(fileName, std::ofstream::binary);
+
+	if (!stream) {
+		wxLogMessage("Something went wrong opening the file.");
+		return;
+	}
 
 	char curChar = 0;
 	size_t linesSize = 0;
@@ -117,7 +128,7 @@ void FontFileSerializer::saveFontFile(std::string fileName, const std::unordered
 		stream << curChar;
 		linesSize = lines.size();
 		writeIntegralToFile(stream, &linesSize);
-		
+
 		for (Line line : lines) {
 			curLineSize = line.size();
 			writeIntegralToFile(stream, &curLineSize);
@@ -128,6 +139,7 @@ void FontFileSerializer::saveFontFile(std::string fileName, const std::unordered
 		}
 
 	}
+	
 
 	wxLogMessage("File saved successfully!"); // I better have some error checking then
 }

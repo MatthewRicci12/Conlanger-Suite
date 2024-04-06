@@ -86,7 +86,11 @@ void MyFrame::CreateCanvasWindow() {
 void MyFrame::CreateTypingWindow() {
     MyWindow* window = dynamic_cast<MyWindow*>(FindWindow(ID_TOP_WINDOW));
     decltype(auto) charMappingRef = window->GetMap();
+
     TypingWindow* tw = new TypingWindow(this, charMappingRef, ID_TYPING_WINDOW, GetSize(), wxDefaultPosition);
+
+    SetSize(wxSize(0.85 * wxGetDisplaySize()));
+    SetWindowStyle(wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER);
     
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
     tw->SetBackgroundColour(*wxBLACK);
@@ -140,6 +144,7 @@ void MyWindow::SaveFontFile(wxCommandEvent& event) {
     dialog.ShowModal();
 
     std::string fileName = dialog.GetValue().ToStdString();
+    if (fileName.empty()) return;
     FontFileSerializer* instance = FontFileSerializer::getInstance();
     instance->saveFontFile(fileName, charMapping);
 }
@@ -158,6 +163,10 @@ void MyWindow::LoadFontFile(wxCommandEvent& event) {
 
 void MyWindow::TryFont(wxCommandEvent& event) {
     Hide();
+    wxClientDC cdc(&canvas);
+    wxBufferedDC dc(&cdc);
+    dc.SetBackground(*wxBLACK_BRUSH);
+    dc.Clear();
     MyFrame* parent = dynamic_cast<MyFrame*>(GetParent());
     parent->CreateTypingWindow();
 }
@@ -309,6 +318,7 @@ BEGIN_EVENT_TABLE(TypingWindow, wxPanel)
 EVT_BUTTON(ID_TYPING_WINDOW_BACK, TypingWindow::Back)
 EVT_BUTTON(ID_TYPING_WINDOW_CLEAR, TypingWindow::Clear)
 EVT_KEY_UP(TypingWindow::KeyPressed)
+EVT_LEFT_DOWN(TypingWindow::OnClick)
 END_EVENT_TABLE()
 
 
@@ -339,6 +349,10 @@ TypingWindow::TypingWindow(wxWindow* parent, const std::unordered_map<char, Line
     SetSizerAndFit(topSizer);
 }
 
+void TypingWindow::OnClick(wxMouseEvent& event) {
+    SetFocusIgnoringChildren();
+}
+
 void TypingWindow::Back(wxCommandEvent& event) {
     MyFrame* parent = dynamic_cast<MyFrame*>(GetParent());
     parent->ShowCanvasWindow();
@@ -348,7 +362,11 @@ void TypingWindow::Clear(wxCommandEvent& event) {
     wxClientDC cdc(this);
     wxBufferedDC dc(&cdc);
     dc.Clear();
+    xOffset = 0;
+    yOffset = 50;
+    SetFocusIgnoringChildren();
 }
+
 
 
 void TypingWindow::KeyPressed(wxKeyEvent& event) {
