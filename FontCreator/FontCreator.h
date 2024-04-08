@@ -71,6 +71,8 @@ public:
     void SaveFontFile(wxCommandEvent& event);
     void LoadFontFile(wxCommandEvent& event);
     void TryFont(wxCommandEvent& event);
+    void ShowMappings(wxCommandEvent& event);
+    void ClearMappings(wxCommandEvent& event);
     std::unordered_map<char, Lines>& GetMap() const;
 private:
     MyPanel canvas;
@@ -105,6 +107,21 @@ private:
     void CreateCanvasWindow();
     void CreateTypingWindow();
     void ShowCanvasWindow();
+};
+
+class ShowMappingDialog : public wxDialog
+{
+public:
+    ShowMappingDialog(wxWindow* parent, const std::unordered_map<char, Lines>& charMappingRef, wxWindowID id, 
+        const wxString& title, const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE, 
+        const wxString& name = wxDialogNameStr);
+private:
+    void OnPaint(wxPaintEvent& event);
+    const std::unordered_map<char, Lines>& charMapping;
+    int xOffset;
+    int yOffset;
+    wxDECLARE_EVENT_TABLE();
 };
 
 

@@ -49,7 +49,10 @@ enum
     ID_TRY_FONT = 9,
     ID_TYPING_WINDOW = 10,
     ID_TYPING_WINDOW_BACK = 11,
-    ID_TYPING_WINDOW_CLEAR = 12
+    ID_TYPING_WINDOW_CLEAR = 12,
+    ID_SHOW_MAPPING_DIALOG = 13,
+    ID_SHOW_MAPPINGS = 14,
+    ID_CLEAR_MAPPINGS = 15
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -118,9 +121,20 @@ EVT_BUTTON(ID_SUBMIT, MyWindow::Submit)
 EVT_BUTTON(ID_SAVE_FONT_FILE, MyWindow::SaveFontFile)
 EVT_BUTTON(ID_LOAD_FONT_FILE, MyWindow::LoadFontFile)
 EVT_BUTTON(ID_TRY_FONT, MyWindow::TryFont)
+EVT_BUTTON(ID_SHOW_MAPPINGS, MyWindow::ShowMappings)
+EVT_BUTTON(ID_CLEAR_MAPPINGS, MyWindow::ClearMappings)
 END_EVENT_TABLE()
 
+void MyWindow::ShowMappings(wxCommandEvent& event) {
+    ShowMappingDialog* smd = new ShowMappingDialog(this, GetMap(), ID_SHOW_MAPPING_DIALOG, "Show Mappings",
+        wxDefaultPosition, 0.85 * wxGetDisplaySize());
+    smd->ShowModal();
+    smd->Destroy();
+}
 
+void MyWindow::ClearMappings(wxCommandEvent& event) {
+    charMapping.clear();
+}
 
 void MyWindow::Clear(wxCommandEvent& event) 
 {
@@ -261,6 +275,10 @@ MyWindow::MyWindow(wxWindow* parent, wxWindowID id, const wxSize& size, const wx
     buttonSizerTop->Add(new wxButton(this, ID_CLEAR, "Clear"),
         wxSizerFlags(0).Center());
     buttonSizerTop->Add(new wxButton(this, ID_SUBMIT, "Submit"),
+        wxSizerFlags(0).Center());
+    buttonSizerTop->Add(new wxButton(this, ID_SHOW_MAPPINGS, "Show Mappings"),
+        wxSizerFlags(0).Center());
+    buttonSizerTop->Add(new wxButton(this, ID_CLEAR_MAPPINGS, "Clear mappings"),
         wxSizerFlags(0).Center());
 
     windowSizer->Add(&canvas, wxSizerFlags(0).Center());
@@ -408,4 +426,53 @@ std::string MyApp::getProjectRoot() {
     auto posOfProjectSuffix = curDir.rfind(PROJECT_SUFFIX);
 
     return curDir.substr(0, posOfProjectSuffix);
+}
+
+BEGIN_EVENT_TABLE(ShowMappingDialog, wxDialog)
+EVT_PAINT(ShowMappingDialog::OnPaint)
+END_EVENT_TABLE()
+
+ShowMappingDialog::ShowMappingDialog(wxWindow* parent, const std::unordered_map<char, Lines>& charMappingRef, wxWindowID id, const wxString& title, const wxPoint& pos,
+    const wxSize& size, long style, const wxString& name) :
+    wxDialog(parent, id, title, pos, size, style, name), charMapping(charMappingRef), xOffset(0), yOffset(0)
+{
+    SetBackgroundColour(*wxBLACK);
+}
+
+void ShowMappingDialog::OnPaint(wxPaintEvent& event) {
+    if (charMapping.size() == 0) return;
+    SetForegroundColour(*wxWHITE);
+
+    wxClientDC cdc(this);
+    wxBufferedDC dc(&cdc);
+    wxFont font(wxFontInfo(12).FaceName("Helvetica"));
+    dc.SetFont(font);
+    dc.SetTextBackground(*wxWHITE);
+
+    auto instance = FontFileSerializer::getInstance();
+    wxPen linePen(wxPenInfo().Colour(*wxWHITE).Width(3));
+    wxDCPenChanger lineUserPenChanger(dc, linePen);
+
+    char label[3] = { 0 };
+    for (const auto& pair : charMapping) {
+        const char curChar = pair.first;
+        const Lines& lines = pair.second;
+
+        sprintf(label, "%c=", curChar);
+        dc.DrawText(label, xOffset, yOffset);
+
+        for (const auto& line : lines)
+        {
+            dc.DrawLines(line.size(), &line[0], xOffset+20, yOffset);
+        }
+
+        xOffset += 100;
+
+        if (xOffset + 100 > GetClientSize().GetWidth()) {
+            xOffset = 0;
+            yOffset += 50;
+        }
+
+    }
+
 }

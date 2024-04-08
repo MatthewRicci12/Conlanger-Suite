@@ -14,7 +14,7 @@ class FontFileSerializer
 public:
 	static FontFileSerializer* getInstance();
 	static void cleanUpInstance();
-	Lines downSizeLines(Lines&);
+	Lines downSizeLines(const Lines&);
 	wxPoint downScalePoint(wxPoint);
 	int normalizeQuotient(double);
 	FontFileSerializer(FontFileSerializer&) = delete;

@@ -29,7 +29,7 @@ FontFileSerializer* FontFileSerializer::getInstance() {
 	return instance;
 }
 
-Lines FontFileSerializer::downSizeLines(Lines& lines) {
+Lines FontFileSerializer::downSizeLines(const Lines& lines) {
 	Lines retVal;
 	wxPoint downscaledPoint;
 	for (Line line : lines) {
